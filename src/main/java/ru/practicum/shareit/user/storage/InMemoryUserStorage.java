@@ -44,11 +44,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Boolean isUserExist(Integer userId) {
-        return users.containsKey(userId);
-    }
-
-    @Override
     public void delete(Integer userId) {
         users.remove(userId);
         log.info("Удален пользователь с Id: '{}'", userId);

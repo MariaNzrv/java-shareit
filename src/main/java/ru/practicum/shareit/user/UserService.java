@@ -24,11 +24,12 @@ public class UserService {
     }
 
     public User findUserById(Integer userId) {
-        if (!userStorage.isUserExist(userId)) {
+        User user = userStorage.findById(userId);
+        if (user == null) {
             log.error("Пользователя с Id = {} не существует", userId);
             throw new RuntimeException("Пользователя с Id = " + userId + " не существует");
         }
-        return userStorage.findById(userId);
+        return user;
     }
 
     public User createUser(UserDto userDto) {
@@ -71,6 +72,7 @@ public class UserService {
 
     public void deleteUser(Integer userId) {
         validateUserId(userId);
+        findUserById(userId);
         userStorage.delete(userId);
     }
 
@@ -89,10 +91,6 @@ public class UserService {
         if (userId == null) {
             log.error("Id не заполнен");
             throw new ValidationException("Для обновления данных пользователя надо указать его Id");
-        }
-        if (!userStorage.isUserExist(userId)) {
-            log.error("Пользователя с Id = {} не существует", userId);
-            throw new RuntimeException("Пользователя с таким Id не существует");
         }
     }
 

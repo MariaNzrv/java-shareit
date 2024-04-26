@@ -1,8 +1,8 @@
-package ru.practicum.shareit.exception;
+package ru.practicum.shareit.error;
 
 public class ErrorResponse {
-    String error;
-    String description;
+    private String error;
+    private String description;
 
     public ErrorResponse(String error, String description) {
         this.error = error;

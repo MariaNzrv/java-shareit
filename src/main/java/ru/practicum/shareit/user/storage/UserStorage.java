@@ -13,7 +13,5 @@ public interface UserStorage {
 
     User findById(Integer userId);
 
-    Boolean isUserExist(Integer userId);
-
     void delete(Integer userId);
 }

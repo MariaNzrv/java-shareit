@@ -8,6 +8,7 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.ArrayList;
@@ -24,17 +25,12 @@ public class ItemService {
     private final UserStorage userStorage;
 
     public Item createItem(Integer userId, ItemDto itemDto) {
-        if (!userStorage.isUserExist(userId)) {
-            log.warn("Пользователя с Id = {} не существует", userId);
-            throw new RuntimeException("Пользователя с Id = " + userId + " не существует");
-        }
-        if (itemDto.getName() == null || itemDto.getDescription() == null || itemDto.getAvailable() == null) {
-            log.warn("Не заполнены обязательные поля");
-            throw new ValidationException("Не заполнены обязательные поля");
-        }
+        validateRequiredFields(itemDto);
         validateFieldsFormat(itemDto);
+
+        User user = getUserById(userId);
         Item item = ItemMapper.toItem(itemDto);
-        item.setOwner(userStorage.findById(userId));
+        item.setOwner(user);
         return itemStorage.create(item);
     }
 
@@ -74,10 +70,7 @@ public class ItemService {
     }
 
     public List<Item> findAllItemsOfUser(Integer userId) {
-        if (!userStorage.isUserExist(userId)) {
-            log.warn("Пользователя с Id = {} не существует", userId);
-            throw new RuntimeException("Пользователя с Id = " + userId + " не существует");
-        }
+        getUserById(userId);
         return itemStorage.findAllItemsOfUser(userId);
     }
 
@@ -98,5 +91,21 @@ public class ItemService {
             log.warn("Описание обязательно для заполнения");
             throw new ValidationException("Описание обязательно для заполнения");
         }
+    }
+
+    private void validateRequiredFields(ItemDto itemDto) {
+        if (itemDto.getName() == null || itemDto.getDescription() == null || itemDto.getAvailable() == null) {
+            log.warn("Не заполнены обязательные поля");
+            throw new ValidationException("Не заполнены обязательные поля");
+        }
+    }
+
+    private User getUserById(Integer userId) {
+        User user = userStorage.findById(userId);
+        if (user == null) {
+            log.warn("Пользователя с Id = {} не существует", userId);
+            throw new RuntimeException("Пользователя с Id = " + userId + " не существует");
+        }
+        return user;
     }
 }
