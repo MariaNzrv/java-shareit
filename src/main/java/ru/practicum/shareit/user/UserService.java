@@ -2,34 +2,33 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ConflictValidationException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    private final UserStorage userStorage;
+    private final UserRepository userStorage;
 
     public List<User> findAllUsers() {
         return userStorage.findAll();
     }
 
     public User findUserById(Integer userId) {
-        User user = userStorage.findById(userId);
-        if (user == null) {
+        Optional<User> user = userStorage.findById(userId);
+        if (user.isEmpty()) {
             log.error("Пользователя с Id = {} не существует", userId);
             throw new RuntimeException("Пользователя с Id = " + userId + " не существует");
         }
-        return user;
+        return user.get();
     }
 
     public User createUser(UserDto userDto) {
@@ -39,14 +38,10 @@ public class UserService {
             throw new ValidationException("Электронная почта обязательна для заполнения");
         }
         validateUserFieldsFormat(email, userDto.getName());
-        for (User user : userStorage.findAll()) {
-            if (user.getEmail().equals(email)) {
-                log.warn("Пользователь с такой Электронной почтой уже есть в системе");
-                throw new ConflictValidationException("Пользователь с такой Электронной почтой уже есть в системе");
-            }
-        }
+
         User user = UserMapper.toUser(userDto);
-        return userStorage.create(user);
+
+        return userStorage.save(user);
     }
 
     public User updateUser(Integer userId, UserDto newUser) {
@@ -67,13 +62,13 @@ public class UserService {
         if (newUser.getName() != null) {
             user.setName(newUser.getName());
         }
-        return userStorage.update(user);
+        return userStorage.save(user);
     }
 
     public void deleteUser(Integer userId) {
         validateUserId(userId);
-        findUserById(userId);
-        userStorage.delete(userId);
+        User user = findUserById(userId);
+        userStorage.delete(user);
     }
 
     private void validateUserFieldsFormat(String email2, String name) {
