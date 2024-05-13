@@ -68,8 +68,7 @@ public class BookingService {
             log.error("Id бронирования не заполнен");
             throw new ValidationException("Id бронирования не заполнен");
         }
-        return bookingRepository.findById(bookingId).orElseThrow(() ->
-        {
+        return bookingRepository.findById(bookingId).orElseThrow(() -> {
             log.error("Бронирования с Id = {} не существует", bookingId);
             throw new EntityNotFoundException("Бронирования с таким Id не существует");
         });
