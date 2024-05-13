@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingSearchState;
 import ru.practicum.shareit.booking.model.BookingState;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.IncorrectStateException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemService;
@@ -17,7 +18,6 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -43,14 +43,10 @@ public class BookingService {
 
     public Booking updateBooking(Integer userId, Integer bookingId, Boolean isApproved) {
         Booking booking = findById(bookingId);
-        if (booking == null) {
-            log.error("Бронирования с Id = {} не существует", bookingId);
-            throw new RuntimeException("Бронирования с таким Id не существует");
-        }
         if (!booking.getItem().getOwner().getId().equals(userId)) {
             log.error("Подтверждение или отклонение запроса на бронирование " +
                     "может быть выполнено только владельцем вещи");
-            throw new RuntimeException("Подтверждение или отклонение запроса на бронирование " +
+            throw new EntityNotFoundException("Подтверждение или отклонение запроса на бронирование " +
                     "может быть выполнено только владельцем вещи");
         }
         if (!booking.getStatus().equals(BookingState.WAITING)) {
@@ -72,18 +68,18 @@ public class BookingService {
             log.error("Id бронирования не заполнен");
             throw new ValidationException("Id бронирования не заполнен");
         }
-        Optional<Booking> booking = bookingRepository.findById(bookingId);
-        if (booking.isEmpty()) {
-            return null;
-        }
-        return booking.get();
+        return bookingRepository.findById(bookingId).orElseThrow(() ->
+        {
+            log.error("Бронирования с Id = {} не существует", bookingId);
+            throw new EntityNotFoundException("Бронирования с таким Id не существует");
+        });
     }
 
     public Booking findBookingById(Integer userId, Integer bookingId) {
         Booking booking = findById(bookingId);
         if (!booking.getBooker().getId().equals(userId) && !booking.getItem().getOwner().getId().equals(userId)) {
             log.error("Нет прав для просмотра информации");
-            throw new RuntimeException("Нет прав для просмотра информации");
+            throw new EntityNotFoundException("Нет прав для просмотра информации");
         }
         return booking;
     }
@@ -170,7 +166,7 @@ public class BookingService {
 
         if (item.getOwner().getId().equals(user.getId())) {
             log.warn("Нельзя забронировать вещь, которая принадлежит вам");
-            throw new RuntimeException("Нельзя забронировать вещь, которая принадлежит вам");
+            throw new EntityNotFoundException("Нельзя забронировать вещь, которая принадлежит вам");
         }
     }
 

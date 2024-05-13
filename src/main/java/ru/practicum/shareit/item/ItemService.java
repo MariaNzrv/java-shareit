@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
+import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -22,7 +24,6 @@ import ru.practicum.shareit.user.storage.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -50,13 +51,9 @@ public class ItemService {
             throw new ValidationException("Для обновления данных надо указать Id вещи");
         }
         Item item = findById(itemId);
-        if (item == null) {
-            log.error("Вещи с Id = {} не существует", itemId);
-            throw new RuntimeException("Вещи с таким Id не существует");
-        }
         if (!item.getOwner().getId().equals(userId)) {
             log.error("Невозможно обновить информацию по вещи, принадлежащей другому пользователю");
-            throw new RuntimeException("Невозможно обновить информацию по вещи, принадлежащей другому пользователю");
+            throw new AccessDeniedException("Невозможно обновить информацию по вещи, принадлежащей другому пользователю");
         }
         validateFieldsFormat(itemDto);
         if (itemDto.getName() != null) {
@@ -76,11 +73,11 @@ public class ItemService {
             log.error("Id вещи не заполнен");
             throw new ValidationException("Для получения данных надо указать Id вещи");
         }
-        Optional<Item> item = itemStorage.findById(itemId);
-        if (item.isEmpty()) {
-            return null;
-        }
-        return item.get();
+
+        return itemStorage.findById(itemId).orElseThrow(() -> {
+            log.error("Вещи с Id = {} не существует", itemId);
+            throw new EntityNotFoundException("Вещи с таким Id не существует");
+        });
     }
 
     public ItemWithBookingDto findItemWithBookingById(Integer userId, Integer itemId) {
@@ -139,10 +136,6 @@ public class ItemService {
         }
         User user = getUserById(userId);
         Item item = findById(itemId);
-        if (item == null) {
-            log.warn("Вещь с таким Id не найдена");
-            throw new ValidationException("Вещь с таким Id не найдена");
-        }
         Booking booking = bookingRepository.findFirst1ByBookerIdAndItemIdAndEndIsBefore(userId, itemId,
                 LocalDateTime.now());
         if (booking == null) {
@@ -177,11 +170,9 @@ public class ItemService {
     }
 
     private User getUserById(Integer userId) {
-        Optional<User> user = userStorage.findById(userId);
-        if (user.isEmpty()) {
+        return userStorage.findById(userId).orElseThrow(() -> {
             log.warn("Пользователя с Id = {} не существует", userId);
-            throw new RuntimeException("Пользователя с Id = " + userId + " не существует");
-        }
-        return user.get();
+            throw new EntityNotFoundException("Пользователя с Id = " + userId + " не существует");
+        });
     }
 }

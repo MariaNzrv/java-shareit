@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ConflictValidationException;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -23,12 +23,10 @@ public class UserService {
     }
 
     public User findUserById(Integer userId) {
-        Optional<User> user = userStorage.findById(userId);
-        if (user.isEmpty()) {
+        return userStorage.findById(userId).orElseThrow(() -> {
             log.error("Пользователя с Id = {} не существует", userId);
-            throw new RuntimeException("Пользователя с Id = " + userId + " не существует");
-        }
-        return user.get();
+            throw new EntityNotFoundException("Пользователя с Id = " + userId + " не существует");
+        });
     }
 
     public User createUser(UserDto userDto) {
