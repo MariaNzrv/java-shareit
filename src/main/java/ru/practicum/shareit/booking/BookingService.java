@@ -91,8 +91,6 @@ public class BookingService {
         BookingSearchState bookingSearchState = validateBookingSearchState(state);
         if (from == null || size == null) {
             switch (bookingSearchState) {
-                case ALL:
-                    return bookingRepository.findAllByBookerIdOrderByEndDesc(userId);
                 case CURRENT:
                     return bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByEndDesc(userId,
                             LocalDateTime.now(), LocalDateTime.now());
@@ -104,16 +102,14 @@ public class BookingService {
                     return bookingRepository.findAllByBookerIdAndStatusOrderByEndDesc(userId, BookingState.WAITING);
                 case REJECTED:
                     return bookingRepository.findAllByBookerIdAndStatusOrderByEndDesc(userId, BookingState.REJECTED);
+                case ALL:
                 default:
-                    log.error("Unknown state: " + state);
-                    throw new IncorrectStateException("Unknown state: " + state);
+                    return bookingRepository.findAllByBookerIdOrderByEndDesc(userId);
             }
         } else {
             Pageable page = validateBookingPageParams(from, size);
 
             switch (bookingSearchState) {
-                case ALL:
-                    return bookingRepository.findAllByBookerId(userId, page).getContent();
                 case CURRENT:
                     return bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfter(userId,
                             LocalDateTime.now(), LocalDateTime.now(), page).getContent();
@@ -125,9 +121,9 @@ public class BookingService {
                     return bookingRepository.findAllByBookerIdAndStatus(userId, BookingState.WAITING, page).getContent();
                 case REJECTED:
                     return bookingRepository.findAllByBookerIdAndStatus(userId, BookingState.REJECTED, page).getContent();
+                case ALL:
                 default:
-                    log.error("Unknown state: " + state);
-                    throw new IncorrectStateException("Unknown state: " + state);
+                    return bookingRepository.findAllByBookerId(userId, page).getContent();
             }
         }
     }
