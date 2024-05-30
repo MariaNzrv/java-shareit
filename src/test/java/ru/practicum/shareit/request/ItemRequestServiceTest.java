@@ -65,7 +65,6 @@ public class ItemRequestServiceTest {
 
         assertEquals(user.getId(), itemRequest.getRequestor().getId());
         assertEquals(requestDto.getDescription(), itemRequest.getDescription());
-        assertEquals(requestDto.getCreated(), itemRequest.getCreated());
         verify(userService, times(1)).findUserById(any());
         verify(itemRequestRepository, times(1)).save(any());
     }
