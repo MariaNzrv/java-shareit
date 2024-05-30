@@ -93,7 +93,7 @@ public class BookingServiceTest {
         item.setAvailable(false);
         ValidationException ex2 = assertThrows(ValidationException.class, () -> bookingService.createBooking(2, bookingDto));
         item.setAvailable(true);
-        ValidationException ex3 = assertThrows(ValidationException.class, () -> bookingService.createBooking(3, bookingDto));
+        EntityNotFoundException ex3 = assertThrows(EntityNotFoundException.class, () -> bookingService.createBooking(3, bookingDto));
 
         assertEquals("Неверно заполнены поля начала/окончания бронирования", ex.getMessage());
         assertEquals("Вещь недоступна для бронирования", ex2.getMessage());

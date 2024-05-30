@@ -217,7 +217,7 @@ public class BookingService {
 
         if (item.getOwner().getId().equals(user.getId())) {
             log.warn("Нельзя забронировать вещь, которая принадлежит вам");
-            throw new ValidationException("Нельзя забронировать вещь, которая принадлежит вам");
+            throw new EntityNotFoundException("Нельзя забронировать вещь, которая принадлежит вам");
         }
     }
 
