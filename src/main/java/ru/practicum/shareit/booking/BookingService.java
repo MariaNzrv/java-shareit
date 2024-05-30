@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -83,36 +86,64 @@ public class BookingService {
         return booking;
     }
 
-    public List<Booking> findAllBookingsOfUser(Integer userId, String state) {
+    public List<Booking> findAllBookingsOfUser(Integer userId, String state, Integer from, Integer size) {
         userService.findUserById(userId);
-        BookingSearchState bookingSearchState;
-        try {
-            bookingSearchState = BookingSearchState.valueOf(state);
-        } catch (IllegalArgumentException e) {
-            log.error("Unknown state: " + state);
-            throw new IncorrectStateException("Unknown state: " + state);
-        }
-        switch (bookingSearchState) {
-            case ALL:
-                return bookingRepository.findAllByBookerIdOrderByEndDesc(userId);
-            case CURRENT:
-                return bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByEndDesc(userId,
-                        LocalDateTime.now(), LocalDateTime.now());
-            case PAST:
-                return bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByEndDesc(userId, LocalDateTime.now());
-            case FUTURE:
-                return bookingRepository.findAllByBookerIdAndStartIsAfterOrderByEndDesc(userId, LocalDateTime.now());
-            case WAITING:
-                return bookingRepository.findAllByBookerIdAndStatusOrderByEndDesc(userId, BookingState.WAITING);
-            case REJECTED:
-                return bookingRepository.findAllByBookerIdAndStatusOrderByEndDesc(userId, BookingState.REJECTED);
-            default:
-                log.error("Unknown state: " + state);
-                throw new IncorrectStateException("Unknown state: " + state);
+        BookingSearchState bookingSearchState = validateBookingSearchState(state);
+        if (from == null || size == null) {
+            switch (bookingSearchState) {
+                case ALL:
+                    return bookingRepository.findAllByBookerIdOrderByEndDesc(userId);
+                case CURRENT:
+                    return bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByEndDesc(userId,
+                            LocalDateTime.now(), LocalDateTime.now());
+                case PAST:
+                    return bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByEndDesc(userId, LocalDateTime.now());
+                case FUTURE:
+                    return bookingRepository.findAllByBookerIdAndStartIsAfterOrderByEndDesc(userId, LocalDateTime.now());
+                case WAITING:
+                    return bookingRepository.findAllByBookerIdAndStatusOrderByEndDesc(userId, BookingState.WAITING);
+                case REJECTED:
+                    return bookingRepository.findAllByBookerIdAndStatusOrderByEndDesc(userId, BookingState.REJECTED);
+                default:
+                    log.error("Unknown state: " + state);
+                    throw new IncorrectStateException("Unknown state: " + state);
+            }
+        } else {
+            Pageable page = validateBookingPageParams(from, size);
+
+            switch (bookingSearchState) {
+                case ALL:
+                    return bookingRepository.findAllByBookerId(userId, page).getContent();
+                case CURRENT:
+                    return bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfter(userId,
+                            LocalDateTime.now(), LocalDateTime.now(), page).getContent();
+                case PAST:
+                    return bookingRepository.findAllByBookerIdAndEndIsBefore(userId, LocalDateTime.now(), page).getContent();
+                case FUTURE:
+                    return bookingRepository.findAllByBookerIdAndStartIsAfter(userId, LocalDateTime.now(), page).getContent();
+                case WAITING:
+                    return bookingRepository.findAllByBookerIdAndStatus(userId, BookingState.WAITING, page).getContent();
+                case REJECTED:
+                    return bookingRepository.findAllByBookerIdAndStatus(userId, BookingState.REJECTED, page).getContent();
+                default:
+                    log.error("Unknown state: " + state);
+                    throw new IncorrectStateException("Unknown state: " + state);
+            }
         }
     }
 
-    public List<Booking> findAllBookingsOfOwnerItems(Integer userId, String state) {
+    private Pageable validateBookingPageParams(Integer from, Integer size) {
+        if (from < 0 || size <= 0) {
+            log.error("Некорректные значения параметров from = {}, size={}", from, size);
+            throw new ValidationException("Некорректные значения параметров from/size");
+        }
+
+        Sort sortByEnd = Sort.by(Sort.Direction.DESC, "end");
+        Pageable page = PageRequest.of(from / size, size, sortByEnd);
+        return page;
+    }
+
+    public List<Booking> findAllBookingsOfOwnerItems(Integer userId, String state, Integer from, Integer size) {
         List<Item> items = itemService.findAllItemsOfUser(userId);
         if (items.isEmpty()) {
             log.error("У пользователя нет вещей");
@@ -122,6 +153,52 @@ public class BookingService {
         for (Item item : items) {
             itemsIds.add(item.getId());
         }
+        BookingSearchState bookingSearchState = validateBookingSearchState(state);
+
+        if (from == null || size == null) {
+            switch (bookingSearchState) {
+                case ALL:
+                    return bookingRepository.findAllByItemIdInOrderByEndDesc(itemsIds);
+                case CURRENT:
+                    return bookingRepository.findAllByItemIdInAndStartIsBeforeAndEndIsAfterOrderByEndDesc(itemsIds,
+                            LocalDateTime.now(), LocalDateTime.now());
+                case PAST:
+                    return bookingRepository.findAllByItemIdInAndEndIsBeforeOrderByEndDesc(itemsIds, LocalDateTime.now());
+                case FUTURE:
+                    return bookingRepository.findAllByItemIdInAndStartIsAfterOrderByEndDesc(itemsIds, LocalDateTime.now());
+                case WAITING:
+                    return bookingRepository.findAllByItemIdInAndStatusOrderByEndDesc(itemsIds, BookingState.WAITING);
+                case REJECTED:
+                    return bookingRepository.findAllByItemIdInAndStatusOrderByEndDesc(itemsIds, BookingState.REJECTED);
+                default:
+                    log.error("Unknown state: " + state);
+                    throw new IncorrectStateException("Unknown state: " + state);
+            }
+        } else {
+            Pageable page = validateBookingPageParams(from, size);
+
+            switch (bookingSearchState) {
+                case ALL:
+                    return bookingRepository.findAllByItemIdIn(itemsIds, page).getContent();
+                case CURRENT:
+                    return bookingRepository.findAllByItemIdInAndStartIsBeforeAndEndIsAfter(itemsIds,
+                            LocalDateTime.now(), LocalDateTime.now(), page).getContent();
+                case PAST:
+                    return bookingRepository.findAllByItemIdInAndEndIsBefore(itemsIds, LocalDateTime.now(), page).getContent();
+                case FUTURE:
+                    return bookingRepository.findAllByItemIdInAndStartIsAfter(itemsIds, LocalDateTime.now(), page).getContent();
+                case WAITING:
+                    return bookingRepository.findAllByItemIdInAndStatus(itemsIds, BookingState.WAITING, page).getContent();
+                case REJECTED:
+                    return bookingRepository.findAllByItemIdInAndStatus(itemsIds, BookingState.REJECTED, page).getContent();
+                default:
+                    log.error("Unknown state: " + state);
+                    throw new IncorrectStateException("Unknown state: " + state);
+            }
+        }
+    }
+
+    private BookingSearchState validateBookingSearchState(String state) {
         BookingSearchState bookingSearchState;
         try {
             bookingSearchState = BookingSearchState.valueOf(state);
@@ -129,24 +206,7 @@ public class BookingService {
             log.error("Unknown state: " + state);
             throw new IncorrectStateException("Unknown state: " + state);
         }
-        switch (bookingSearchState) {
-            case ALL:
-                return bookingRepository.findAllByItemIdInOrderByEndDesc(itemsIds);
-            case CURRENT:
-                return bookingRepository.findAllByItemIdInAndStartIsBeforeAndEndIsAfterOrderByEndDesc(itemsIds,
-                        LocalDateTime.now(), LocalDateTime.now());
-            case PAST:
-                return bookingRepository.findAllByItemIdInAndEndIsBeforeOrderByEndDesc(itemsIds, LocalDateTime.now());
-            case FUTURE:
-                return bookingRepository.findAllByItemIdInAndStartIsAfterOrderByEndDesc(itemsIds, LocalDateTime.now());
-            case WAITING:
-                return bookingRepository.findAllByItemIdInAndStatusOrderByEndDesc(itemsIds, BookingState.WAITING);
-            case REJECTED:
-                return bookingRepository.findAllByItemIdInAndStatusOrderByEndDesc(itemsIds, BookingState.REJECTED);
-            default:
-                log.error("Unknown state: " + state);
-                throw new IncorrectStateException("Unknown state: " + state);
-        }
+        return bookingSearchState;
     }
 
     private void validateFields(BookingDto bookingDto, Item item, User user) {
