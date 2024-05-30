@@ -45,8 +45,15 @@ public class BookingServiceTest {
         item = new Item("book", "book for read", Boolean.TRUE);
         item.setOwner(user2);
         item.setId(4);
-        when(userService.findUserById(any())).thenReturn(user);
+        when(userService.findUserById(2)).thenReturn(user);
+        when(userService.findUserById(3)).thenReturn(user2);
         when(itemService.findById(any())).thenReturn(item);
+    }
+
+    @Test
+    void testFindByIdFails() {
+        assertThrows(ValidationException.class, () -> bookingService.findById(null));
+        assertThrows(EntityNotFoundException.class, () -> bookingService.findById(404));
     }
 
     @Test
@@ -73,23 +80,24 @@ public class BookingServiceTest {
 
     @Test
     void testCreateBookingWithPastStartDateError() {
-        Booking booking = new Booking();
-        booking.setBooker(user);
-        booking.setItem(item);
-        booking.setStatus(BookingState.WAITING);
-        booking.setStart(LocalDateTime.of(2024, Month.MAY, 25, 12, 40));
-        booking.setEnd(LocalDateTime.of(2024, Month.MAY, 25, 12, 45));
-
-        when(bookingRepository.save(any())).thenReturn(booking);
+        LocalDateTime now = LocalDateTime.now();
 
         BookingDto bookingDto = new BookingDto();
         bookingDto.setItemId(4);
-        bookingDto.setStart(LocalDateTime.of(2024, Month.MAY, 25, 12, 40));
-        bookingDto.setEnd(LocalDateTime.of(2024, Month.MAY, 25, 12, 45));
+        bookingDto.setStart(now.minusDays(2));
+        bookingDto.setEnd(now.minusDays(1));
 
         ValidationException ex = assertThrows(ValidationException.class, () -> bookingService.createBooking(2, bookingDto));
+        bookingDto.setStart(now.plusDays(1));
+        bookingDto.setEnd(now.plusDays(2));
+        item.setAvailable(false);
+        ValidationException ex2 = assertThrows(ValidationException.class, () -> bookingService.createBooking(2, bookingDto));
+        item.setAvailable(true);
+        ValidationException ex3 = assertThrows(ValidationException.class, () -> bookingService.createBooking(3, bookingDto));
 
         assertEquals("Неверно заполнены поля начала/окончания бронирования", ex.getMessage());
+        assertEquals("Вещь недоступна для бронирования", ex2.getMessage());
+        assertEquals("Нельзя забронировать вещь, которая принадлежит вам", ex3.getMessage());
     }
 
     @Test

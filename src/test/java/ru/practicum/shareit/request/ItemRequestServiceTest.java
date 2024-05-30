@@ -3,6 +3,7 @@ package ru.practicum.shareit.request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -51,6 +52,7 @@ public class ItemRequestServiceTest {
         Mockito.doReturn(Collections.singletonList(item)).when(itemService).findAllItemsByRequest(itemRequest2.getId());
         Mockito.doReturn(Collections.singletonList(itemRequest)).when(itemRequestRepository).findAllByRequestorIdOrderByCreatedDesc(user.getId());
         Mockito.doReturn(Collections.singletonList(itemRequest2)).when(itemRequestRepository).findAllByRequestorIdNotOrderByCreatedDesc(user.getId());
+        Mockito.doReturn(new PageImpl<>(Collections.singletonList(itemRequest2))).when(itemRequestRepository).findAllByRequestorIdNotOrderByCreatedDesc(eq(user.getId()), any());
         Mockito.doReturn(Optional.of(itemRequest)).when(itemRequestRepository).findById(itemRequest.getId());
         Mockito.doAnswer(invocationOnMock -> invocationOnMock.getArgument(0)).when(itemRequestRepository).save(any());
     }
@@ -115,10 +117,14 @@ public class ItemRequestServiceTest {
     @Test
     void testFindAllItemRequestsOfOtherUsers() {
         List<ItemRequestWithResponseDto> allItemRequestsOfUser = itemRequestService.findAllItemRequestsOfOtherUsers(user.getId(), null, null);
+        List<ItemRequestWithResponseDto> allItemRequestsOfUser2 = itemRequestService.findAllItemRequestsOfOtherUsers(user.getId(), 0, 100);
 
-        verify(userService, times(1)).findUserById(user.getId());
+        assertEquals(allItemRequestsOfUser, allItemRequestsOfUser2);
+
+        verify(userService, times(2)).findUserById(user.getId());
         verify(itemRequestRepository, times(1)).findAllByRequestorIdNotOrderByCreatedDesc(user.getId());
-        verify(itemService, times(1)).findAllItemsByRequest(itemRequest2.getId());
+        verify(itemRequestRepository, times(1)).findAllByRequestorIdNotOrderByCreatedDesc(eq(user.getId()), any());
+        verify(itemService, times(2)).findAllItemsByRequest(itemRequest2.getId());
 
         assertEquals(1, allItemRequestsOfUser.size());
         ItemRequestWithResponseDto itemRequestWithResponseDto = allItemRequestsOfUser.get(0);
@@ -128,5 +134,10 @@ public class ItemRequestServiceTest {
         assertEquals(itemRequest2.getDescription(), itemRequestWithResponseDto.getDescription());
         assertEquals(1, itemRequestWithResponseDto.getItems().size());
         assertEquals(ItemMapper.toDto(item), itemRequestWithResponseDto.getItems().get(0));
+    }
+
+    @Test
+    void testFindAllItemRequestsOfOtherUsersValidation() {
+        assertThrows(ValidationException.class, () -> itemRequestService.findAllItemRequestsOfOtherUsers(1, -1, -1));
     }
 }

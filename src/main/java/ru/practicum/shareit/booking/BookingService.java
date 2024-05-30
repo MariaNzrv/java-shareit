@@ -153,8 +153,6 @@ public class BookingService {
 
         if (from == null || size == null) {
             switch (bookingSearchState) {
-                case ALL:
-                    return bookingRepository.findAllByItemIdInOrderByEndDesc(itemsIds);
                 case CURRENT:
                     return bookingRepository.findAllByItemIdInAndStartIsBeforeAndEndIsAfterOrderByEndDesc(itemsIds,
                             LocalDateTime.now(), LocalDateTime.now());
@@ -166,16 +164,14 @@ public class BookingService {
                     return bookingRepository.findAllByItemIdInAndStatusOrderByEndDesc(itemsIds, BookingState.WAITING);
                 case REJECTED:
                     return bookingRepository.findAllByItemIdInAndStatusOrderByEndDesc(itemsIds, BookingState.REJECTED);
+                case ALL:
                 default:
-                    log.error("Unknown state: " + state);
-                    throw new IncorrectStateException("Unknown state: " + state);
+                    return bookingRepository.findAllByItemIdInOrderByEndDesc(itemsIds);
             }
         } else {
             Pageable page = validateBookingPageParams(from, size);
 
             switch (bookingSearchState) {
-                case ALL:
-                    return bookingRepository.findAllByItemIdIn(itemsIds, page).getContent();
                 case CURRENT:
                     return bookingRepository.findAllByItemIdInAndStartIsBeforeAndEndIsAfter(itemsIds,
                             LocalDateTime.now(), LocalDateTime.now(), page).getContent();
@@ -187,9 +183,9 @@ public class BookingService {
                     return bookingRepository.findAllByItemIdInAndStatus(itemsIds, BookingState.WAITING, page).getContent();
                 case REJECTED:
                     return bookingRepository.findAllByItemIdInAndStatus(itemsIds, BookingState.REJECTED, page).getContent();
+                case ALL:
                 default:
-                    log.error("Unknown state: " + state);
-                    throw new IncorrectStateException("Unknown state: " + state);
+                    return bookingRepository.findAllByItemIdIn(itemsIds, page).getContent();
             }
         }
     }
@@ -221,7 +217,7 @@ public class BookingService {
 
         if (item.getOwner().getId().equals(user.getId())) {
             log.warn("Нельзя забронировать вещь, которая принадлежит вам");
-            throw new EntityNotFoundException("Нельзя забронировать вещь, которая принадлежит вам");
+            throw new ValidationException("Нельзя забронировать вещь, которая принадлежит вам");
         }
     }
 
