@@ -42,13 +42,17 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemWithBookingDto> findAllItemsOfUser(@RequestHeader("X-Sharer-User-Id") Integer userId) {
-        return itemService.findAllItemsWithBooking(userId);
+    public List<ItemWithBookingDto> findAllItemsOfUser(@RequestHeader("X-Sharer-User-Id") Integer userId,
+                                                       @RequestParam(defaultValue = "0", name = "from") Integer from,
+                                                       @RequestParam(defaultValue = "1000000", name = "size") Integer size) {
+        return itemService.findAllItemsWithBooking(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestParam("text") String text) {
-        return ItemMapper.toDto(itemService.searchItem(text));
+    public List<ItemDto> search(@RequestParam("text") String text,
+                                @RequestParam(defaultValue = "0", name = "from") Integer from,
+                                @RequestParam(defaultValue = "1000000", name = "size") Integer size) {
+        return ItemMapper.toDto(itemService.searchItem(text, from, size));
     }
 
     @PostMapping("/{itemId}/comment")

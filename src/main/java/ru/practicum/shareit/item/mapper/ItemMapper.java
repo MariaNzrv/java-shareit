@@ -12,12 +12,15 @@ import java.util.List;
 
 public class ItemMapper {
     public static ItemDto toDto(Item item) {
-        return new ItemDto(
-                item.getId(),
-                item.getName(),
-                item.getDescription(),
-                item.getAvailable()
-        );
+        ItemDto itemDto = new ItemDto();
+        itemDto.setId(item.getId());
+        itemDto.setName(item.getName());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setAvailable(item.getAvailable());
+        if (item.getRequest() != null) {
+            itemDto.setRequestId(item.getRequest().getId());
+        }
+        return itemDto;
     }
 
     public static List<ItemDto> toDto(List<Item> items) {
