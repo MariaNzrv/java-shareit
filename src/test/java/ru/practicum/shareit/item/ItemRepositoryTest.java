@@ -44,14 +44,14 @@ public class ItemRepositoryTest {
     }
 
     @Test
-    void testFindAllByOwnerIdOk() {
+    void findAllByOwnerIdOk() {
         List<Item> list = itemRepository.findAllByOwnerId(user.getId());
         assertEquals(1, list.size());
         assertEquals(item, list.get(0));
     }
 
     @Test
-    void testFindAllByNameOrDescriptionContainingIgnoreCaseAndAvailableOk() {
+    void findAllByNameOrDescriptionContainingIgnoreCaseAndAvailableOk() {
         List<Item> list = itemRepository.findAllByNameOrDescriptionContainingIgnoreCaseAndAvailable("ME", "", true);
         assertEquals(1, list.size());
         assertEquals(item, list.get(0));
@@ -62,7 +62,7 @@ public class ItemRepositoryTest {
     }
 
     @Test
-    void testFindAllByNameOrDescriptionContainingIgnoreCaseAndAvailableNotFound() {
+    void findAllByNameOrDescriptionContainingIgnoreCaseAndAvailableNotFound() {
         List<Item> list = itemRepository.findAllByNameOrDescriptionContainingIgnoreCaseAndAvailable("asd", "description", false);
         assertEquals(0, list.size());
 
@@ -71,7 +71,7 @@ public class ItemRepositoryTest {
     }
 
     @Test
-    void testFindAllByRequestId() {
+    void findAllByRequestId() {
         List<Item> list = itemRepository.findAllByRequestId(request.getId());
         assertEquals(1, list.size());
         assertEquals(item, list.get(0));

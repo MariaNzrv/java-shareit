@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @JsonTest
 public class UserDtoTest {
     @Test
-    void testSerializeDeserializeUserDtoOk() throws JsonProcessingException {
+    void serializeDeserializeUserDtoOk() throws JsonProcessingException {
         UserDto userDto = new UserDto(1, "user@ya.ru", "Irina");
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         String result = objectMapper.writeValueAsString(userDto);

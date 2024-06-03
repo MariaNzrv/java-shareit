@@ -49,7 +49,7 @@ public class ItemRequestRepositoryTest {
     }
 
     @Test
-    void testFindAllByRequestorIdOrderByCreatedDesc() {
+    void findAllByRequestorIdOrderByCreatedDesc() {
         List<ItemRequest> result = itemRequestRepository.findAllByRequestorIdOrderByCreatedDesc(user1.getId());
         assertEquals(2, result.size());
 
@@ -58,7 +58,7 @@ public class ItemRequestRepositoryTest {
     }
 
     @Test
-    void testFindAllByRequestorIdNotOrderByCreatedDesc() {
+    void findAllByRequestorIdNotOrderByCreatedDesc() {
         List<ItemRequest> result = itemRequestRepository.findAllByRequestorIdNotOrderByCreatedDesc(user1.getId());
         assertEquals(2, result.size());
 

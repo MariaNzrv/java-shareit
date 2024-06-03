@@ -55,7 +55,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllByBookerIdOrderByEndDescOk() {
+    void findAllByBookerIdOrderByEndDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -78,7 +78,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByEndDescOk() {
+    void findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByEndDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -104,7 +104,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllByBookerIdAndEndIsBeforeOrderByEndDescOk() {
+    void findAllByBookerIdAndEndIsBeforeOrderByEndDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -129,7 +129,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllByBookerIdAndStartIsAfterOrderByEndDescOk() {
+    void findAllByBookerIdAndStartIsAfterOrderByEndDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -154,7 +154,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllByBookerIdAndStatusOrderByEndDescOk() {
+    void findAllByBookerIdAndStatusOrderByEndDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -179,7 +179,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllByItemIdInOrderByEndDescOk() {
+    void findAllByItemIdInOrderByEndDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -205,7 +205,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllByItemIdInAndStartIsBeforeAndEndIsAfterOrderByEndDescOk() {
+    void findAllByItemIdInAndStartIsBeforeAndEndIsAfterOrderByEndDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -233,7 +233,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllByItemIdInAndEndIsBeforeOrderByEndDescOk() {
+    void findAllByItemIdInAndEndIsBeforeOrderByEndDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -260,7 +260,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllByItemIdInAndStartIsAfterOrderByEndDescOk() {
+    void findAllByItemIdInAndStartIsAfterOrderByEndDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -287,7 +287,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllByItemIdInAndStatusOrderByEndDescOk() {
+    void findAllByItemIdInAndStatusOrderByEndDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -314,7 +314,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindFirst1ByItemIdAndStartIsBeforeAndStatusOrderByStartDescOk() {
+    void findFirst1ByItemIdAndStartIsBeforeAndStatusOrderByStartDescOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -339,7 +339,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindFirst1ByItemIdAndStartIsAfterAndStatusOrderByStartAscOk() {
+    void findFirst1ByItemIdAndStartIsAfterAndStatusOrderByStartAscOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,
@@ -364,7 +364,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void testFindFirst1ByBookerIdAndItemIdAndEndIsBeforeOk() {
+    void findFirst1ByBookerIdAndItemIdAndEndIsBeforeOk() {
 
         Booking savedBooking = saveBooking(savedUser,
                 savedItem,

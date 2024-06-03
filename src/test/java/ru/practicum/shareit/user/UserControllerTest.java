@@ -32,7 +32,7 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void testFindAllOk() throws Exception {
+    void findAllOk() throws Exception {
         when(userService.findAllUsers()).thenReturn(Collections.emptyList());
         mockMvc.perform(get("/users")
                 .header("X-Sharer-User-Id", 1)
@@ -46,7 +46,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testFindByIdOk() throws Exception {
+    void findByIdOk() throws Exception {
         User user = new User(2, "user@ya.ru", "Irina");
 
         when(userService.findUserById(2)).thenReturn(user);
@@ -63,7 +63,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testCreateUserOk() throws Exception {
+    void createUserOk() throws Exception {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         User user = new User(2, "user@ya.ru", "Irina");
 
@@ -85,7 +85,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testUpdateUserOk() throws Exception {
+    void updateUserOk() throws Exception {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         User user = new User(2, "user@ya.ru", "Irina");
 
@@ -108,7 +108,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testDeleteUserOk() throws Exception {
+    void deleteUserOk() throws Exception {
         mockMvc.perform(delete("/users/2")
                 .header("X-Sharer-User-Id", 2)
                 .characterEncoding(StandardCharsets.UTF_8)
@@ -119,7 +119,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testDeleteUnexistedUserThrowsException() throws Exception {
+    void deleteUnexistedUserThrowsException() throws Exception {
         Mockito.doThrow(EntityNotFoundException.class).when(userService).deleteUser(2);
         mockMvc.perform(delete("/users/2")
                 .header("X-Sharer-User-Id", 2)

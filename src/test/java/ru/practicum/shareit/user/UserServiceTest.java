@@ -41,7 +41,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testFindAllUsers() {
+    void findAllUsers() {
         List<User> allUsers = userService.findAllUsers();
 
         verify(userRepository, times(1)).findAll();
@@ -52,7 +52,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testFindByIdOk() {
+    void findByIdOk() {
         User actual = userService.findUserById(user1.getId());
 
         verify(userRepository, times(1)).findById(user1.getId());
@@ -61,13 +61,13 @@ public class UserServiceTest {
     }
 
     @Test
-    void testFindByIdNotFound() {
+    void findByIdNotFound() {
         assertThrows(EntityNotFoundException.class, () -> userService.findUserById(404));
         verify(userRepository, times(1)).findById(404);
     }
 
     @Test
-    void testCreateUserOk() {
+    void createUserOk() {
         UserDto userDto = new UserDto();
         userDto.setEmail("newEmail@email.com");
         userDto.setName("newName");
@@ -80,7 +80,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testCreateUserValidations() {
+    void createUserValidations() {
         UserDto userDto = new UserDto();
         assertThrows(ValidationException.class, () -> userService.createUser(userDto));
         verify(userRepository, times(0)).save(any());
@@ -97,7 +97,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testUpdateUser() {
+    void updateUser() {
         UserDto userDto = new UserDto();
         userDto.setName("newName");
         userDto.setEmail("newEmail@email.com");
@@ -109,7 +109,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testUpdateUserValidations() {
+    void updateUserValidations() {
         UserDto userDto = new UserDto();
         userDto.setName(" ");
         userDto.setEmail(" ");
@@ -128,7 +128,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testDeleteUserOk() {
+    void deleteUserOk() {
         userService.deleteUser(user1.getId());
 
         verify(userRepository, times(1)).findById(user1.getId());
@@ -136,7 +136,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testDeleteUserNotFound() {
+    void deleteUserNotFound() {
         assertThrows(EntityNotFoundException.class, () -> userService.deleteUser(404));
 
         verify(userRepository, times(1)).findById(404);

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @JsonTest
 public class ComentDtoTest {
     @Test
-    void testSerializeDeserializeCommentOk() throws JsonProcessingException {
+    void serializeDeserializeCommentOk() throws JsonProcessingException {
         CommentDto commentDto = new CommentDto(1, "comment 1", "Oleg",
                 LocalDateTime.of(2024, Month.MAY, 25, 12, 40));
 

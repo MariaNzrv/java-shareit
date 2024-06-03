@@ -62,19 +62,17 @@ public class ItemRequestService {
         userService.findUserById(userId);
         List<ItemRequest> itemRequests;
         List<ItemRequestWithResponseDto> itemRequestWithResponseDtos = new ArrayList<>();
-        if (from == null || size == null) {
-            itemRequests = itemRequestRepository.findAllByRequestorIdNotOrderByCreatedDesc(userId);
-        } else {
-            if (from < 0 || size <= 0) {
-                log.error("Некорректные значения параметров from = {}, size={}", from, size);
-                throw new ValidationException("Некорректные значения параметров from/size");
-            }
 
-            Sort sortByCreated = Sort.by(Sort.Direction.DESC, "created");
-            Pageable page = PageRequest.of(from / size, size, sortByCreated);
-            Page<ItemRequest> itemRequestPage = itemRequestRepository.findAllByRequestorIdNotOrderByCreatedDesc(userId, page);
-            itemRequests = itemRequestPage.getContent();
+        if (from < 0 || size <= 0) {
+            log.error("Некорректные значения параметров from = {}, size={}", from, size);
+            throw new ValidationException("Некорректные значения параметров from/size");
         }
+
+        Sort sortByCreated = Sort.by(Sort.Direction.DESC, "created");
+        Pageable page = PageRequest.of(from / size, size, sortByCreated);
+        Page<ItemRequest> itemRequestPage = itemRequestRepository.findAllByRequestorIdNotOrderByCreatedDesc(userId, page);
+        itemRequests = itemRequestPage.getContent();
+
         for (ItemRequest itemRequest : itemRequests) {
             List<Item> items = itemService.findAllItemsByRequest(itemRequest.getId());
             itemRequestWithResponseDtos.add(ItemRequestMapper.toItemRequestWithResponseDto(itemRequest, items));

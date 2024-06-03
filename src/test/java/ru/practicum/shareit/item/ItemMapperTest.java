@@ -36,13 +36,13 @@ public class ItemMapperTest {
     }
 
     @Test
-    void testToDto() {
+    void toDtoOk() {
         ItemDto itemDtoActual = ItemMapper.toDto(item);
         assertEquals(itemDto, itemDtoActual);
     }
 
     @Test
-    void testToDtoList() {
+    void toDtoListOk() {
         List<ItemDto> itemDtoListActual = ItemMapper.toDto(Arrays.asList(item, item));
         assertEquals(2, itemDtoListActual.size());
         assertEquals(itemDto, itemDtoListActual.get(0));
@@ -50,7 +50,7 @@ public class ItemMapperTest {
     }
 
     @Test
-    void testToItem() {
+    void toItemOk() {
         Item itemActual = ItemMapper.toItem(itemDto);
         item.setId(null);
         item.setOwner(null);
@@ -59,7 +59,7 @@ public class ItemMapperTest {
     }
 
     @Test
-    void testToItemWithBooking() {
+    void toItemWithBookingOk() {
         LocalDateTime from = LocalDateTime.now();
         LocalDateTime to = from.plusMinutes(10);
         Booking booking = new Booking(1, from, to, item, user, BookingState.APPROVED);

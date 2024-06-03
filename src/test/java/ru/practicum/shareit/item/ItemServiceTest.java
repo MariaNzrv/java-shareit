@@ -90,7 +90,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testCreateItemOk() {
+    void createItemOk() {
         Item createdItem = itemService.createItem(userOwner.getId(), itemDto);
 
         assertEquals(itemDto.getName(), createdItem.getName());
@@ -105,27 +105,27 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testCreateItemUserNotFound() {
+    void createItemUserNotFound() {
         assertThrows(EntityNotFoundException.class, () -> itemService.createItem(404, itemDto));
 
         verify(userRepository, times(1)).findById(any());
     }
 
     @Test
-    void testCreateItemFieldsEmptyNotFound() {
+    void createItemFieldsEmptyNotFound() {
         assertThrows(ValidationException.class, () -> itemService.createItem(404, new ItemDto()));
         itemDto.setName("");
         assertThrows(ValidationException.class, () -> itemService.createItem(404, itemDto));
     }
 
     @Test
-    void testCreateItemRequestNotFound() {
+    void createItemRequestNotFound() {
         itemDto.setRequestId(404);
         assertThrows(EntityNotFoundException.class, () -> itemService.createItem(userOwner.getId(), itemDto));
     }
 
     @Test
-    void testUpdateItemOk() {
+    void updateItemOk() {
         Item item = itemService.updateItem(userOwner.getId(), this.item.getId(), itemDto);
 
         assertEquals(itemDto.getName(), item.getName());
@@ -138,7 +138,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testUpdateItemOnlyRequestId() {
+    void updateItemOnlyRequestId() {
         itemDto.setName(null);
         itemDto.setDescription(null);
         itemDto.setAvailable(null);
@@ -151,14 +151,14 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testUpdateItemNotExists() {
+    void updateItemNotExists() {
         assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(404, 404, new ItemDto()));
         verify(itemRepository, times(1)).findById(any());
         verify(itemRepository, times(0)).save(any());
     }
 
     @Test
-    void testUpdateItemValidations() {
+    void updateItemValidations() {
         assertThrows(AccessDeniedException.class, () -> itemService.updateItem(userAsker.getId(), item.getId(), itemDto));
         assertThrows(ValidationException.class, () -> itemService.updateItem(userOwner.getId(), null, itemDto));
         itemDto.setDescription("");
@@ -169,19 +169,19 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testFindByIdOk() {
+    void findByIdOk() {
         Item byId = itemService.findById(1);
         assertEquals(item, byId);
         verify(itemRepository, times(1)).findById(any());
     }
 
     @Test
-    void testFindByIdValidation() {
+    void findByIdValidation() {
         assertThrows(ValidationException.class, () -> itemService.findById(null));
     }
 
     @Test
-    void testFindAllOk() {
+    void findAllOk() {
         List<Item> list = itemService.findAllItemsOfUser(userOwner.getId());
         assertEquals(1, list.size());
         assertEquals(item, list.get(0));
@@ -189,7 +189,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testFindByRequestOk() {
+    void findByRequestOk() {
         List<Item> list = itemService.findAllItemsByRequest(request.getId());
         assertEquals(1, list.size());
         assertEquals(item, list.get(0));
@@ -197,13 +197,13 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testFindByIdNotFound() {
+    void findByIdNotFound() {
         assertThrows(EntityNotFoundException.class, () -> itemService.findById(404));
         verify(itemRepository, times(1)).findById(any());
     }
 
     @Test
-    void testFindOwnItemWithBooking() {
+    void findOwnItemWithBooking() {
         ItemWithBookingDto itemWithBooking = itemService.findItemWithBookingById(userOwner.getId(), item.getId());
         verify(itemRepository, times(1)).findById(any());
         verify(commentRepository, times(1)).findAllByItemId(any());
@@ -221,7 +221,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testFindForeignItemWithBooking() {
+    void findForeignItemWithBooking() {
         ItemWithBookingDto itemWithBooking = itemService.findItemWithBookingById(userAsker.getId(), item.getId());
         verify(itemRepository, times(1)).findById(any());
         verify(commentRepository, times(1)).findAllByItemId(any());
@@ -239,16 +239,13 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testFindAllItemsWithBooking() {
-        List<ItemWithBookingDto> list = itemService.findAllItemsWithBooking(userOwner.getId(), null, null);
-        List<ItemWithBookingDto> list2 = itemService.findAllItemsWithBooking(userOwner.getId(), 0, 100);
-        assertEquals(list, list2);
+    void findAllItemsWithBooking() {
+        List<ItemWithBookingDto> list = itemService.findAllItemsWithBooking(userOwner.getId(), 0, 100);
 
-        verify(itemRepository, times(1)).findAllByOwnerId(any());
         verify(itemRepository, times(1)).findAllByOwnerId(any(), any());
-        verify(commentRepository, times(2)).findAllByItemId(any());
-        verify(bookingRepository, times(2)).findFirst1ByItemIdAndStartIsBeforeAndStatusOrderByStartDesc(any(), any(), any());
-        verify(bookingRepository, times(2)).findFirst1ByItemIdAndStartIsAfterAndStatusOrderByStartAsc(any(), any(), any());
+        verify(commentRepository, times(1)).findAllByItemId(any());
+        verify(bookingRepository, times(1)).findFirst1ByItemIdAndStartIsBeforeAndStatusOrderByStartDesc(any(), any(), any());
+        verify(bookingRepository, times(1)).findFirst1ByItemIdAndStartIsAfterAndStatusOrderByStartAsc(any(), any(), any());
 
         assertEquals(1, list.size());
         ItemWithBookingDto itemWithBooking = list.get(0);
@@ -263,29 +260,26 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testFindAllItemsWithBookingFails() {
+    void findAllItemsWithBookingFails() {
         assertThrows(ValidationException.class, () -> itemService.findAllItemsWithBooking(1, -1, -1));
     }
 
     @Test
-    void testSearchItem() {
-        List<Item> list = itemService.searchItem("name", null, null);
-        List<Item> list2 = itemService.searchItem("name", 0, 100);
-        assertEquals(list, list2);
+    void searchItem() {
+        List<Item> list = itemService.searchItem("name", 0, 100);
 
-        verify(itemRepository, times(1)).findAllByNameOrDescriptionContainingIgnoreCaseAndAvailable(any(), any(), any());
         verify(itemRepository, times(1)).findAllByNameOrDescriptionContainingIgnoreCaseAndAvailable(any(), any(), any(), any());
         assertEquals(1, list.size());
         assertEquals(item, list.get(0));
     }
 
     @Test
-    void testSearchItemFails() {
+    void searchItemFails() {
         assertThrows(ValidationException.class, () -> itemService.searchItem("name", -1, -1));
     }
 
     @Test
-    void testSearchItemSkipped() {
+    void searchItemSkipped() {
         List<Item> list = itemService.searchItem("", null, null);
         verify(itemRepository, times(0)).findAllByNameOrDescriptionContainingIgnoreCaseAndAvailable(any(), any(), any());
         assertEquals(0, list.size());
@@ -298,7 +292,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testCreateCommentOk() {
+    void createCommentOk() {
         CommentDto commentDto = new CommentDto();
         commentDto.setText("text");
         Comment comment = itemService.createComment(userAsker.getId(), item.getId(), commentDto);
@@ -311,7 +305,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void testCreateCommentValidations() {
+    void createCommentValidations() {
         CommentDto commentDto = new CommentDto();
         assertThrows(ValidationException.class, () -> itemService.createComment(404, 404, commentDto));
         commentDto.setText("text");

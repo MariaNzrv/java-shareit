@@ -44,8 +44,8 @@ public class BookingController {
                                                           @RequestParam(name = "state",
                                                                   required = false,
                                                                   defaultValue = "ALL") String state,
-                                                          @RequestParam(required = false, name = "from") Integer from,
-                                                          @RequestParam(required = false, name = "size") Integer size) {
+                                                          @RequestParam(defaultValue = "0", name = "from") Integer from,
+                                                          @RequestParam(defaultValue = "1000000", name = "size") Integer size) {
         return BookingMapper.toDto(bookingService.findAllBookingsOfUser(userId, state, from, size));
     }
 
@@ -54,8 +54,8 @@ public class BookingController {
                                                                 @RequestParam(name = "state",
                                                                         required = false,
                                                                         defaultValue = "ALL") String state,
-                                                                @RequestParam(required = false, name = "from") Integer from,
-                                                                @RequestParam(required = false, name = "size") Integer size) {
+                                                                @RequestParam(defaultValue = "0", name = "from") Integer from,
+                                                                @RequestParam(defaultValue = "1000000", name = "size") Integer size) {
         return BookingMapper.toDto(bookingService.findAllBookingsOfOwnerItems(userId, state, from, size));
     }
 

@@ -122,17 +122,13 @@ public class ItemService {
 
     public List<ItemWithBookingDto> findAllItemsWithBooking(Integer userId, Integer from, Integer size) {
         List<Item> items;
-        if (from == null || size == null) {
-            items = findAllItemsOfUser(userId);
-        } else {
-            getUserById(userId);
-            if (from < 0 || size <= 0) {
-                log.error("Некорректные значения параметров from = {}, size={}", from, size);
-                throw new ValidationException("Некорректные значения параметров from/size");
-            }
-            Pageable page = PageRequest.of(from / size, size);
-            items = itemRepository.findAllByOwnerId(userId, page).getContent();
+        getUserById(userId);
+        if (from < 0 || size <= 0) {
+            log.error("Некорректные значения параметров from = {}, size={}", from, size);
+            throw new ValidationException("Некорректные значения параметров from/size");
         }
+        Pageable page = PageRequest.of(from / size, size);
+        items = itemRepository.findAllByOwnerId(userId, page).getContent();
         List<ItemWithBookingDto> itemsWithBookings = new ArrayList<>();
 
         for (Item item : items) {
@@ -154,16 +150,12 @@ public class ItemService {
         if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }
-        if (from == null || size == null) {
-            return itemRepository.findAllByNameOrDescriptionContainingIgnoreCaseAndAvailable(text, text, Boolean.TRUE);
-        } else {
-            if (from < 0 || size <= 0) {
-                log.error("Некорректные значения параметров from = {}, size={}", from, size);
-                throw new ValidationException("Некорректные значения параметров from/size");
-            }
-            Pageable page = PageRequest.of(from / size, size);
-            return itemRepository.findAllByNameOrDescriptionContainingIgnoreCaseAndAvailable(text, text, Boolean.TRUE, page).getContent();
+        if (from < 0 || size <= 0) {
+            log.error("Некорректные значения параметров from = {}, size={}", from, size);
+            throw new ValidationException("Некорректные значения параметров from/size");
         }
+        Pageable page = PageRequest.of(from / size, size);
+        return itemRepository.findAllByNameOrDescriptionContainingIgnoreCaseAndAvailable(text, text, Boolean.TRUE, page).getContent();
     }
 
     public Comment createComment(Integer userId, Integer itemId, CommentDto commentDto) {

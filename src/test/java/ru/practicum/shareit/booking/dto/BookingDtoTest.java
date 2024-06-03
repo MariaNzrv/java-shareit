@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class BookingDtoTest {
 
     @Test
-    void testSerializeDeserializeBookingOk() throws JsonProcessingException {
+    void serializeDeserializeBookingOk() throws JsonProcessingException {
         BookingDto bookingDto = new BookingDto(
                 LocalDateTime.of(2024, Month.MAY, 25, 12, 40),
                 LocalDateTime.of(2024, Month.MAY, 25, 12, 41),

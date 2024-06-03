@@ -89,46 +89,27 @@ public class BookingService {
     public List<Booking> findAllBookingsOfUser(Integer userId, String state, Integer from, Integer size) {
         userService.findUserById(userId);
         BookingSearchState bookingSearchState = validateBookingSearchState(state);
-        if (from == null || size == null) {
-            switch (bookingSearchState) {
-                case CURRENT:
-                    return bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByEndDesc(userId,
-                            LocalDateTime.now(), LocalDateTime.now());
-                case PAST:
-                    return bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByEndDesc(userId, LocalDateTime.now());
-                case FUTURE:
-                    return bookingRepository.findAllByBookerIdAndStartIsAfterOrderByEndDesc(userId, LocalDateTime.now());
-                case WAITING:
-                    return bookingRepository.findAllByBookerIdAndStatusOrderByEndDesc(userId, BookingState.WAITING);
-                case REJECTED:
-                    return bookingRepository.findAllByBookerIdAndStatusOrderByEndDesc(userId, BookingState.REJECTED);
-                case ALL:
-                default:
-                    return bookingRepository.findAllByBookerIdOrderByEndDesc(userId);
-            }
-        } else {
-            Pageable page = validateBookingPageParams(from, size);
+        Pageable page = getPageable(from, size);
 
-            switch (bookingSearchState) {
-                case CURRENT:
-                    return bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfter(userId,
-                            LocalDateTime.now(), LocalDateTime.now(), page).getContent();
-                case PAST:
-                    return bookingRepository.findAllByBookerIdAndEndIsBefore(userId, LocalDateTime.now(), page).getContent();
-                case FUTURE:
-                    return bookingRepository.findAllByBookerIdAndStartIsAfter(userId, LocalDateTime.now(), page).getContent();
-                case WAITING:
-                    return bookingRepository.findAllByBookerIdAndStatus(userId, BookingState.WAITING, page).getContent();
-                case REJECTED:
-                    return bookingRepository.findAllByBookerIdAndStatus(userId, BookingState.REJECTED, page).getContent();
-                case ALL:
-                default:
-                    return bookingRepository.findAllByBookerId(userId, page).getContent();
-            }
+        switch (bookingSearchState) {
+            case CURRENT:
+                return bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfter(userId,
+                        LocalDateTime.now(), LocalDateTime.now(), page).getContent();
+            case PAST:
+                return bookingRepository.findAllByBookerIdAndEndIsBefore(userId, LocalDateTime.now(), page).getContent();
+            case FUTURE:
+                return bookingRepository.findAllByBookerIdAndStartIsAfter(userId, LocalDateTime.now(), page).getContent();
+            case WAITING:
+                return bookingRepository.findAllByBookerIdAndStatus(userId, BookingState.WAITING, page).getContent();
+            case REJECTED:
+                return bookingRepository.findAllByBookerIdAndStatus(userId, BookingState.REJECTED, page).getContent();
+            case ALL:
+            default:
+                return bookingRepository.findAllByBookerId(userId, page).getContent();
         }
     }
 
-    private Pageable validateBookingPageParams(Integer from, Integer size) {
+    private Pageable getPageable(Integer from, Integer size) {
         if (from < 0 || size <= 0) {
             log.error("Некорректные значения параметров from = {}, size={}", from, size);
             throw new ValidationException("Некорректные значения параметров from/size");
@@ -151,42 +132,23 @@ public class BookingService {
         }
         BookingSearchState bookingSearchState = validateBookingSearchState(state);
 
-        if (from == null || size == null) {
-            switch (bookingSearchState) {
-                case CURRENT:
-                    return bookingRepository.findAllByItemIdInAndStartIsBeforeAndEndIsAfterOrderByEndDesc(itemsIds,
-                            LocalDateTime.now(), LocalDateTime.now());
-                case PAST:
-                    return bookingRepository.findAllByItemIdInAndEndIsBeforeOrderByEndDesc(itemsIds, LocalDateTime.now());
-                case FUTURE:
-                    return bookingRepository.findAllByItemIdInAndStartIsAfterOrderByEndDesc(itemsIds, LocalDateTime.now());
-                case WAITING:
-                    return bookingRepository.findAllByItemIdInAndStatusOrderByEndDesc(itemsIds, BookingState.WAITING);
-                case REJECTED:
-                    return bookingRepository.findAllByItemIdInAndStatusOrderByEndDesc(itemsIds, BookingState.REJECTED);
-                case ALL:
-                default:
-                    return bookingRepository.findAllByItemIdInOrderByEndDesc(itemsIds);
-            }
-        } else {
-            Pageable page = validateBookingPageParams(from, size);
+        Pageable page = getPageable(from, size);
 
-            switch (bookingSearchState) {
-                case CURRENT:
-                    return bookingRepository.findAllByItemIdInAndStartIsBeforeAndEndIsAfter(itemsIds,
-                            LocalDateTime.now(), LocalDateTime.now(), page).getContent();
-                case PAST:
-                    return bookingRepository.findAllByItemIdInAndEndIsBefore(itemsIds, LocalDateTime.now(), page).getContent();
-                case FUTURE:
-                    return bookingRepository.findAllByItemIdInAndStartIsAfter(itemsIds, LocalDateTime.now(), page).getContent();
-                case WAITING:
-                    return bookingRepository.findAllByItemIdInAndStatus(itemsIds, BookingState.WAITING, page).getContent();
-                case REJECTED:
-                    return bookingRepository.findAllByItemIdInAndStatus(itemsIds, BookingState.REJECTED, page).getContent();
-                case ALL:
-                default:
-                    return bookingRepository.findAllByItemIdIn(itemsIds, page).getContent();
-            }
+        switch (bookingSearchState) {
+            case CURRENT:
+                return bookingRepository.findAllByItemIdInAndStartIsBeforeAndEndIsAfter(itemsIds,
+                        LocalDateTime.now(), LocalDateTime.now(), page).getContent();
+            case PAST:
+                return bookingRepository.findAllByItemIdInAndEndIsBefore(itemsIds, LocalDateTime.now(), page).getContent();
+            case FUTURE:
+                return bookingRepository.findAllByItemIdInAndStartIsAfter(itemsIds, LocalDateTime.now(), page).getContent();
+            case WAITING:
+                return bookingRepository.findAllByItemIdInAndStatus(itemsIds, BookingState.WAITING, page).getContent();
+            case REJECTED:
+                return bookingRepository.findAllByItemIdInAndStatus(itemsIds, BookingState.REJECTED, page).getContent();
+            case ALL:
+            default:
+                return bookingRepository.findAllByItemIdIn(itemsIds, page).getContent();
         }
     }
 

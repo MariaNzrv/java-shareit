@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @JsonTest
 public class ItemDtoTest {
     @Test
-    void testSerializeDeserializeItemOk() throws JsonProcessingException {
+    void serializeDeserializeItemOk() throws JsonProcessingException {
         ItemDto itemDto = new ItemDto(1, "book", "book for read", true, 2);
 
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());

@@ -22,13 +22,13 @@ public class UserMapperTest {
     }
 
     @Test
-    void testToDto() {
+    void toDtoOk() {
         UserDto userDtoActual = UserMapper.toDto(user);
         assertEquals(userDto, userDtoActual);
     }
 
     @Test
-    void testToDtoList() {
+    void toDtoListOk() {
         List<UserDto> userDtoListActual = UserMapper.toDto(Arrays.asList(user, user));
         assertEquals(2, userDtoListActual.size());
         assertEquals(userDto, userDtoListActual.get(0));
@@ -36,7 +36,7 @@ public class UserMapperTest {
     }
 
     @Test
-    void testToItem() {
+    void toItemOk() {
         User userActual = UserMapper.toUser(userDto);
         user.setId(null);
         assertEquals(user, userActual);

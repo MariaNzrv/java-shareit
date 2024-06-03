@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @JsonTest
 public class ItemWithBookingDtoTest {
     @Test
-    void testSerializeDeserializeItemWithBookingOk() throws JsonProcessingException {
+    void serializeDeserializeItemWithBookingOk() throws JsonProcessingException {
         ItemWithBookingDto itemWithBookingDto = new ItemWithBookingDto();
         itemWithBookingDto.setId(1);
         itemWithBookingDto.setName("book");

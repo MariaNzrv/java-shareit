@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @JsonTest
 public class ItemRequestWithResponseDtoTest {
     @Test
-    void testSerializeDeserializeItemRequestWithResponseDtoOk() throws JsonProcessingException {
+    void serializeDeserializeItemRequestWithResponseDtoOk() throws JsonProcessingException {
         ItemRequestWithResponseDto itemRequestWithResponseDto = new ItemRequestWithResponseDto();
         List<ItemDto> items = new ArrayList<>();
         itemRequestWithResponseDto.setId(1);

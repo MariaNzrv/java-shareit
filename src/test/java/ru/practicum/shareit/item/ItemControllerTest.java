@@ -41,7 +41,7 @@ public class ItemControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void testCreateItemOk() throws Exception {
+    void createItemOk() throws Exception {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         User user = new User(2, "user@ya.ru", "Irina");
         User user2 = new User(6, "user2@ya.ru", "Oleg");
@@ -75,7 +75,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void testUpdateItemOk() throws Exception {
+    void updateItemOk() throws Exception {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         User user = new User(2, "user@ya.ru", "Irina");
         User user2 = new User(6, "user2@ya.ru", "Oleg");
@@ -109,7 +109,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void testFindItemWithBookingByIdOk() throws Exception {
+    void findItemWithBookingByIdOk() throws Exception {
         User user = new User(2, "user@ya.ru", "Irina");
         User user2 = new User(6, "user2@ya.ru", "Oleg");
         Item item = new Item("book", "book for read", Boolean.TRUE);
@@ -180,8 +180,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    void testFindAllItemsOfUserWithoutPageOk() throws Exception {
-        when(itemService.findAllItemsWithBooking(2, null, null)).thenReturn(Collections.emptyList());
+    void findAllItemsOfUserWithoutPageOk() throws Exception {
+        when(itemService.findAllItemsWithBooking(2, 0, 1000000)).thenReturn(Collections.emptyList());
         mockMvc.perform(get("/items")
                 .header("X-Sharer-User-Id", 2)
                 .characterEncoding(StandardCharsets.UTF_8)
@@ -190,12 +190,12 @@ public class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
 
-        verify(itemService, times(1)).findAllItemsWithBooking(2, null, null);
+        verify(itemService, times(1)).findAllItemsWithBooking(2, 0, 1000000);
     }
 
     @Test
-    void testFindItemsBySearchWithoutPageOk() throws Exception {
-        when(itemService.searchItem("book", null, null)).thenReturn(Collections.emptyList());
+    void findItemsBySearchWithoutPageOk() throws Exception {
+        when(itemService.searchItem("book", 0, 1000000)).thenReturn(Collections.emptyList());
         mockMvc.perform(get("/items/search")
                 .header("X-Sharer-User-Id", 2)
                 .param("text", "book")
@@ -205,11 +205,11 @@ public class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
 
-        verify(itemService, times(1)).searchItem("book", null, null);
+        verify(itemService, times(1)).searchItem("book", 0, 1000000);
     }
 
     @Test
-    void testCreateCommentOk() throws Exception {
+    void createCommentOk() throws Exception {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         User user = new User(2, "user@ya.ru", "Irina");
         User user2 = new User(6, "user2@ya.ru", "Oleg");

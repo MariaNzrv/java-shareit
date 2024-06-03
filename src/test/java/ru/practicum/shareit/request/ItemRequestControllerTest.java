@@ -36,7 +36,7 @@ public class ItemRequestControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void testCreateItemRequestOk() throws Exception {
+    void createItemRequestOk() throws Exception {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         User user = new User(2, "user@ya.ru", "Irina");
         ItemRequest itemRequest = new ItemRequest();
@@ -64,7 +64,7 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void testFindAllItemRequestOfUserOk() throws Exception {
+    void findAllItemRequestOfUserOk() throws Exception {
         when(itemRequestService.findAllItemRequestsOfUser(anyInt())).thenReturn(Collections.emptyList());
         mockMvc.perform(get("/requests")
                 .header("X-Sharer-User-Id", 2)
@@ -78,8 +78,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void testFindAllItemRequestsOfOtherUsersWithoutPageOk() throws Exception {
-        when(itemRequestService.findAllItemRequestsOfOtherUsers(2, null, null)).thenReturn(Collections.emptyList());
+    void findAllItemRequestsOfOtherUsersWithoutPageOk() throws Exception {
+        when(itemRequestService.findAllItemRequestsOfOtherUsers(2, 0, 1000000)).thenReturn(Collections.emptyList());
         mockMvc.perform(get("/requests/all")
                 .header("X-Sharer-User-Id", 2)
                 .characterEncoding(StandardCharsets.UTF_8)
@@ -88,11 +88,11 @@ public class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
 
-        verify(itemRequestService, times(1)).findAllItemRequestsOfOtherUsers(2, null, null);
+        verify(itemRequestService, times(1)).findAllItemRequestsOfOtherUsers(2, 0, 1000000);
     }
 
     @Test
-    void testFindByIdOk() throws Exception {
+    void findByIdOk() throws Exception {
         User user = new User(2, "user@ya.ru", "Irina");
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setId(5);

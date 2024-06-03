@@ -36,29 +36,29 @@ public class BookingControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void testGetAllBookingsOfUserWithoutPageOk() throws Exception {
-        when(bookingService.findAllBookingsOfUser(1, "ALL", null, null)).thenReturn(Collections.emptyList());
+    void getAllBookingsOfUserWithDefaultPageParamsOk() throws Exception {
+        when(bookingService.findAllBookingsOfUser(1, "ALL", 0, 1000000)).thenReturn(Collections.emptyList());
         mockMvc.perform(get("/bookings")
                 .header("X-Sharer-User-Id", 1)
                 .param("state", "ALL"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
-        verify(bookingService, times(1)).findAllBookingsOfUser(1, "ALL", null, null);
+        verify(bookingService, times(1)).findAllBookingsOfUser(1, "ALL", 0, 1000000);
     }
 
     @Test
-    void testGetAllBookingsOfOwnerItemsWithoutPageOk() throws Exception {
-        when(bookingService.findAllBookingsOfOwnerItems(1, "ALL", null, null)).thenReturn(Collections.emptyList());
+    void getAllBookingsOfOwnerItemsWithDefaultPageParamsOk() throws Exception {
+        when(bookingService.findAllBookingsOfOwnerItems(1, "ALL", 0, 1000000)).thenReturn(Collections.emptyList());
         mockMvc.perform(get("/bookings/owner")
                 .header("X-Sharer-User-Id", 1)
                 .param("state", "ALL"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
-        verify(bookingService, times(1)).findAllBookingsOfOwnerItems(1, "ALL", null, null);
+        verify(bookingService, times(1)).findAllBookingsOfOwnerItems(1, "ALL", 0, 1000000);
     }
 
     @Test
-    void testGetBookingOk() throws Exception {
+    void getBookingOk() throws Exception {
         User user = new User(2, "user@ya.ru", "Irina");
         Item item = new Item("book", "book for read", Boolean.TRUE);
         item.setId(3);
@@ -87,7 +87,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void testUpdateBookingApprovedOk() throws Exception {
+    void updateBookingApprovedOk() throws Exception {
         User user = new User(2, "user@ya.ru", "Irina");
         Item item = new Item("book", "book for read", Boolean.TRUE);
         item.setId(3);
@@ -117,7 +117,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void testCreateBookingOk() throws Exception {
+    void createBookingOk() throws Exception {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         User user = new User(2, "user@ya.ru", "Irina");
         Item item = new Item("book", "book for read", Boolean.TRUE);

@@ -58,7 +58,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void testCreateItemRequestOk() {
+    void createItemRequestOk() {
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setDescription("description");
         requestDto.setCreated(LocalDateTime.now());
@@ -72,7 +72,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void testCreateItemRequestValidations() {
+    void createItemRequestValidations() {
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setDescription("");
         requestDto.setCreated(LocalDateTime.now());
@@ -81,7 +81,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void testFindAllItemRequestsOfUser() {
+    void findAllItemRequestsOfUser() {
         List<ItemRequestWithResponseDto> allItemRequestsOfUser = itemRequestService.findAllItemRequestsOfUser(user.getId());
 
         verify(userService, times(1)).findUserById(user.getId());
@@ -99,7 +99,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void testFindItemRequestWithResponseById() {
+    void findItemRequestWithResponseById() {
         ItemRequestWithResponseDto itemRequestWithResponseDto = itemRequestService.findItemRequestWithResponseById(user.getId(), itemRequest.getId());
 
         verify(userService, times(1)).findUserById(user.getId());
@@ -115,16 +115,12 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void testFindAllItemRequestsOfOtherUsers() {
-        List<ItemRequestWithResponseDto> allItemRequestsOfUser = itemRequestService.findAllItemRequestsOfOtherUsers(user.getId(), null, null);
-        List<ItemRequestWithResponseDto> allItemRequestsOfUser2 = itemRequestService.findAllItemRequestsOfOtherUsers(user.getId(), 0, 100);
+    void findAllItemRequestsOfOtherUsers() {
+        List<ItemRequestWithResponseDto> allItemRequestsOfUser = itemRequestService.findAllItemRequestsOfOtherUsers(user.getId(), 0, 100);
 
-        assertEquals(allItemRequestsOfUser, allItemRequestsOfUser2);
-
-        verify(userService, times(2)).findUserById(user.getId());
-        verify(itemRequestRepository, times(1)).findAllByRequestorIdNotOrderByCreatedDesc(user.getId());
+        verify(userService, times(1)).findUserById(user.getId());
         verify(itemRequestRepository, times(1)).findAllByRequestorIdNotOrderByCreatedDesc(eq(user.getId()), any());
-        verify(itemService, times(2)).findAllItemsByRequest(itemRequest2.getId());
+        verify(itemService, times(1)).findAllItemsByRequest(itemRequest2.getId());
 
         assertEquals(1, allItemRequestsOfUser.size());
         ItemRequestWithResponseDto itemRequestWithResponseDto = allItemRequestsOfUser.get(0);
@@ -137,7 +133,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void testFindAllItemRequestsOfOtherUsersValidation() {
+    void findAllItemRequestsOfOtherUsersValidation() {
         assertThrows(ValidationException.class, () -> itemRequestService.findAllItemRequestsOfOtherUsers(1, -1, -1));
     }
 }

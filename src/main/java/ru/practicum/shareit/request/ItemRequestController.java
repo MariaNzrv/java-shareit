@@ -37,8 +37,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestWithResponseDto> findAllItemRequestsOfOtherUsers(@RequestHeader("X-Sharer-User-Id") Integer userId,
-                                                                            @RequestParam(required = false, name = "from") Integer from,
-                                                                            @RequestParam(required = false, name = "size") Integer size) {
+                                                                            @RequestParam(defaultValue = "0", name = "from") Integer from,
+                                                                            @RequestParam(defaultValue = "1000000", name = "size") Integer size) {
         return itemRequestService.findAllItemRequestsOfOtherUsers(userId, from, size);
     }
 }

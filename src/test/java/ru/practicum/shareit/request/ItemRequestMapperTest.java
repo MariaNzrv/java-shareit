@@ -35,13 +35,13 @@ public class ItemRequestMapperTest {
     }
 
     @Test
-    void testToDto() {
+    void toDtoOk() {
         ItemRequestDto actualDto = ItemRequestMapper.toDto(request);
         assertEquals(itemRequestDto, actualDto);
     }
 
     @Test
-    void testToDtoList() {
+    void toDtoListOk() {
         List<ItemRequestDto> listDto = ItemRequestMapper.toDto(List.of(request, request));
         assertEquals(2, listDto.size());
         assertEquals(itemRequestDto, listDto.get(0));
@@ -49,13 +49,13 @@ public class ItemRequestMapperTest {
     }
 
     @Test
-    void testToItemRequest() {
+    void toItemRequestOk() {
         ItemRequest actual = ItemRequestMapper.toItemRequest(itemRequestDto);
         assertEquals(request.getDescription(), actual.getDescription());
     }
 
     @Test
-    void testToItemRequestWithResponseDto() {
+    void toItemRequestWithResponseDtoOk() {
         ItemRequestWithResponseDto actual = ItemRequestMapper.toItemRequestWithResponseDto(request, Arrays.asList(item, item));
 
         assertEquals(request.getId(), actual.getId());
