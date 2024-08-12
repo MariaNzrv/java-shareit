@@ -43,16 +43,20 @@ public class BookingController {
     public List<BookingDtoResponse> findAllBookingsOfUser(@RequestHeader("X-Sharer-User-Id") Integer userId,
                                                           @RequestParam(name = "state",
                                                                   required = false,
-                                                                  defaultValue = "ALL") String state) {
-        return BookingMapper.toDto(bookingService.findAllBookingsOfUser(userId, state));
+                                                                  defaultValue = "ALL") String state,
+                                                          @RequestParam(defaultValue = "0", name = "from") Integer from,
+                                                          @RequestParam(defaultValue = "1000000", name = "size") Integer size) {
+        return BookingMapper.toDto(bookingService.findAllBookingsOfUser(userId, state, from, size));
     }
 
     @GetMapping("/owner")
     public List<BookingDtoResponse> findAllBookingsOfOwnerItems(@RequestHeader("X-Sharer-User-Id") Integer userId,
                                                                 @RequestParam(name = "state",
                                                                         required = false,
-                                                                        defaultValue = "ALL") String state) {
-        return BookingMapper.toDto(bookingService.findAllBookingsOfOwnerItems(userId, state));
+                                                                        defaultValue = "ALL") String state,
+                                                                @RequestParam(defaultValue = "0", name = "from") Integer from,
+                                                                @RequestParam(defaultValue = "1000000", name = "size") Integer size) {
+        return BookingMapper.toDto(bookingService.findAllBookingsOfOwnerItems(userId, state, from, size));
     }
 
 

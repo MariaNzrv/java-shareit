@@ -26,9 +26,7 @@ public class ItemRequest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requestor_id")
-    @NonNull
     private User requestor;
 
-    @NonNull
     private LocalDateTime created = LocalDateTime.now();
 }

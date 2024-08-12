@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
@@ -18,6 +20,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
@@ -30,10 +34,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemService {
 
-    private final ItemRepository itemStorage;
-    private final UserRepository userStorage;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     public Item createItem(Integer userId, ItemDto itemDto) {
         validateRequiredFields(itemDto);
@@ -42,7 +47,11 @@ public class ItemService {
         User user = getUserById(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(user);
-        return itemStorage.save(item);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = getRequestById(itemDto.getRequestId());
+            item.setRequest(itemRequest);
+        }
+        return itemRepository.save(item);
     }
 
     public Item updateItem(Integer userId, Integer itemId, ItemDto itemDto) {
@@ -65,7 +74,11 @@ public class ItemService {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-        return itemStorage.save(item);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = getRequestById(itemDto.getRequestId());
+            item.setRequest(itemRequest);
+        }
+        return itemRepository.save(item);
     }
 
     public Item findById(Integer itemId) {
@@ -74,7 +87,7 @@ public class ItemService {
             throw new ValidationException("Для получения данных надо указать Id вещи");
         }
 
-        return itemStorage.findById(itemId).orElseThrow(() -> {
+        return itemRepository.findById(itemId).orElseThrow(() -> {
             log.error("Вещи с Id = {} не существует", itemId);
             throw new EntityNotFoundException("Вещи с таким Id не существует");
         });
@@ -100,11 +113,22 @@ public class ItemService {
 
     public List<Item> findAllItemsOfUser(Integer userId) {
         getUserById(userId);
-        return itemStorage.findAllByOwnerId(userId);
+        return itemRepository.findAllByOwnerId(userId);
     }
 
-    public List<ItemWithBookingDto> findAllItemsWithBooking(Integer userId) {
-        List<Item> items = findAllItemsOfUser(userId);
+    public List<Item> findAllItemsByRequest(Integer requestId) {
+        return itemRepository.findAllByRequestId(requestId);
+    }
+
+    public List<ItemWithBookingDto> findAllItemsWithBooking(Integer userId, Integer from, Integer size) {
+        List<Item> items;
+        getUserById(userId);
+        if (from < 0 || size <= 0) {
+            log.error("Некорректные значения параметров from = {}, size={}", from, size);
+            throw new ValidationException("Некорректные значения параметров from/size");
+        }
+        Pageable page = PageRequest.of(from / size, size);
+        items = itemRepository.findAllByOwnerId(userId, page).getContent();
         List<ItemWithBookingDto> itemsWithBookings = new ArrayList<>();
 
         for (Item item : items) {
@@ -122,11 +146,16 @@ public class ItemService {
         return itemsWithBookings;
     }
 
-    public List<Item> searchItem(String text) {
-        if (text.isEmpty() || text.isBlank()) {
+    public List<Item> searchItem(String text, Integer from, Integer size) {
+        if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }
-        return itemStorage.findAllByNameOrDescriptionContainingIgnoreCaseAndAvailable(text, text, Boolean.TRUE);
+        if (from < 0 || size <= 0) {
+            log.error("Некорректные значения параметров from = {}, size={}", from, size);
+            throw new ValidationException("Некорректные значения параметров from/size");
+        }
+        Pageable page = PageRequest.of(from / size, size);
+        return itemRepository.findAllByNameOrDescriptionContainingIgnoreCaseAndAvailable(text, text, Boolean.TRUE, page).getContent();
     }
 
     public Comment createComment(Integer userId, Integer itemId, CommentDto commentDto) {
@@ -170,9 +199,16 @@ public class ItemService {
     }
 
     private User getUserById(Integer userId) {
-        return userStorage.findById(userId).orElseThrow(() -> {
+        return userRepository.findById(userId).orElseThrow(() -> {
             log.warn("Пользователя с Id = {} не существует", userId);
             throw new EntityNotFoundException("Пользователя с Id = " + userId + " не существует");
+        });
+    }
+
+    private ItemRequest getRequestById(Integer requestId) {
+        return itemRequestRepository.findById(requestId).orElseThrow(() -> {
+            log.warn("Запрос с Id = {} не существует", requestId);
+            throw new EntityNotFoundException("Запрос с Id = " + requestId + " не существует");
         });
     }
 }
